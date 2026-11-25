@@ -3,7 +3,18 @@
   if (typeof Chess === "undefined") { $("status").textContent = "Нет подключения"; $("hint").textContent = "Для работы правил шахмат нужен интернет: библиотека chess.js загружается с CDN."; return; }
   const game = new Chess();
   const boardEl = $("board");
-  const glyph = {wp:"♙",wn:"♘",wb:"♗",wr:"♖",wq:"♕",wk:"♔",bp:"♟",bn:"♞",bb:"♝",br:"♜",bq:"♛",bk:"♚"};
+  const pieceSvg = {
+    p:'<path d="M50 12c-10 0-16 8-16 18 0 7 4 12 9 15l-4 13-17 18-5 12h66l-5-12-17-18-4-13c5-3 9-8 9-15 0-10-6-18-16-18z"/>',
+    r:'<path d="M18 14h14v10h9V14h18v10h9V14h14v26l-9 8-5 32 12 10v7H20v-7l12-10-5-32-9-8z"/><path class="detail" d="M31 48h38M28 82h44M23 91h54"/>',
+    n:'<path d="M19 88c3-13 12-20 22-27-5-7-7-15-5-24 2-10 10-18 20-23l-1 14c9-4 17-2 22 5 5 8 2 17-5 24l-7 9c-4 6-5 12-4 22H19z"/><path class="detail" d="M47 30l9 3M68 43l-8 5M27 88h48"/>',
+    b:'<path d="M50 10c-12 0-20 10-20 22 0 10 6 17 13 22l-5 15-17 16-4 10h66l-4-10-17-16-5-15c7-5 13-12 13-22C70 20 62 10 50 10z"/><path class="detail" d="M40 25l20 20M27 85h46"/>',
+    q:'<path d="M16 29c-5 0-8-4-8-9s4-9 9-9 9 4 9 9c0 2-1 4-2 5l12 18 8-25c-5-2-8-6-8-11 0-6 5-10 11-10s11 4 11 10c0 5-3 9-8 11l8 25 12-18c-1-1-2-3-2-5 0-5 4-9 9-9s9 4 9 9-3 9-8 9l-7 43H23z"/><path class="detail" d="M23 72h54M20 83h60"/>',
+    k:'<path d="M43 8h14v13h13v13H57v12l16 12 7 26 8 8v7H12v-7l8-8 7-26 16-12V34H30V21h13z"/><path class="detail" d="M50 8v26M30 72h40M22 89h56"/>'
+  };
+  function pieceMarkup(piece){
+    const fill=piece.color==="w"?"white":"black";
+    return '<svg class="piece-glyph piece-'+fill+'" viewBox="0 0 100 100" aria-hidden="true" focusable="false">'+pieceSvg[piece.type]+'</svg>';
+  }
   const values = {p:100,n:320,b:330,r:500,q:900,k:20000};
   const key = "chess_ai_memory_v1";
   let memory = loadMemory(), selected = null, legal = [], lastMove = null, thinking = false;
@@ -34,7 +45,7 @@
       if(legal.includes(sq)){el.classList.add("legal");if(p)el.classList.add("capture");}
       if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
       el.replaceChildren();
-      if(p){const pieceEl=document.createElement("span");pieceEl.className="piece-glyph "+(p.color==="w"?"piece-white":"piece-black");pieceEl.textContent=glyph[p.color+p.type];el.appendChild(pieceEl);}
+      if(p){el.insertAdjacentHTML("beforeend",pieceMarkup(p));}
       el.setAttribute("aria-label",sq+(p?", "+p.type:""));
     }
     const history=game.history();
