@@ -164,7 +164,7 @@
     const p=game.get(sq);
     if(selected&&legal.includes(sq)){
       const move=game.move({from:selected,to:sq,promotion:"q"});
-      if(move){lastMove=move;selected=null;legal=[];animateMove(move.from,move.to,move.piece);afterPlayerMove();return}
+      if(move){lastMove=move;selected=null;legal=[];animateMove(move.from,move.to,move.piece);animateCastlingRook(move);afterPlayerMove();return}
     }
     if(p&&p.color==="w"){selected=sq;legal=game.moves({square:sq, verbose:true}).map(m=>m.to)}
     else{selected=null;legal=[]}
@@ -203,7 +203,7 @@
       if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
     }
     const chosen=choices[Math.floor(Math.random()*choices.length)];
-    if(chosen){game.move({from:chosen.from,to:chosen.to,promotion:"q"});lastMove=chosen;animateMove(chosen.from,chosen.to,chosen);memory.preferred[chosen.from+chosen.to]=(memory.preferred[chosen.from+chosen.to]||0)+1}
+    if(chosen){const played=game.move({from:chosen.from,to:chosen.to,promotion:"q"});lastMove=chosen;animateMove(chosen.from,chosen.to,chosen);animateCastlingRook(played);memory.preferred[chosen.from+chosen.to]=(memory.preferred[chosen.from+chosen.to]||0)+1}
     thinking=false;recordPosition();render();finishIfOver();
   }
   $("newGame").addEventListener("click",()=>{if(game.history().length&&!game.game_over()){memory.games++;memory.draws++;save()}game.reset();selected=null;legal=[];lastMove=null;thinking=false;render()});
