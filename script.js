@@ -60,32 +60,55 @@
     const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
     const toEl=boardEl.querySelector('[data-square="'+to+'"]');
     if(!fromEl||!toEl||!piece)return;
-    const a=fromEl.getBoundingClientRect(),b=toEl.getBoundingClientRect();
+    const a=fromEl.getBoundingClientRect();
+    const b=toEl.getBoundingClientRect();
     const ghost=document.createElement("div");
+    const fromStyle=getComputedStyle(fromEl);
     ghost.className="moving-piece";
     ghost.textContent=glyph[piece.color+piece.type];
-    ghost.style.left=a.left+"px";ghost.style.top=a.top+"px";
-    ghost.style.width=a.width+"px";ghost.style.height=a.height+"px";
+    ghost.style.left=a.left+"px";
+    ghost.style.top=a.top+"px";
+    ghost.style.width=a.width+"px";
+    ghost.style.height=a.height+"px";
+    ghost.style.fontSize=fromStyle.fontSize;
+    ghost.style.color=fromStyle.color;
+    ghost.style.transform="translate3d(0,0,0)";
     document.body.appendChild(ghost);
-    render();
-    const target=boardEl.querySelector('[data-square="'+to+'"]');
-    if(target)target.style.visibility="hidden";
-    const dx=b.left-a.left,dy=b.top-a.top;
-    if(typeof ghost.animate==="function"){
-      const animation=ghost.animate(
-        [{transform:"translate3d(0,0,0)"},{transform:"translate3d("+dx+"px,"+dy+"px,0)"}],
-        {duration:420,easing:"cubic-bezier(.22,.7,.25,1)",fill:"forwards"}
-      );
-      animation.onfinish=()=>{
-        ghost.remove();
-        const cell=boardEl.querySelector('[data-square="'+to+'"]');
-        if(cell)cell.style.visibility="";
-      };
-    }else{
-      ghost.style.transition="left 420ms cubic-bezier(.22,.7,.25,1),top 420ms cubic-bezier(.22,.7,.25,1)";
-      requestAnimationFrame(()=>{ghost.style.left=b.left+"px";ghost.style.top=b.top+"px"});
-      setTimeout(()=>{ghost.remove();const cell=boardEl.querySelector('[data-square="'+to+'"]');if(cell)cell.style.visibility=""},450);
-    }
+
+    // Hide the destination piece while the moving copy travels over the board.
+    toEl.style.visibility="hidden";
+    const dx=b.left-a.left;
+    const dy=b.top-a.top;
+    let finished=false;
+    const finish=()=>{
+      if(finished)return;
+      finished=true;
+      ghost.remove();
+      const destination=boardEl.querySelector('[data-square="'+to+'"]');
+      if(destination)destination.style.visibility="";
+    };
+
+    // Wait for the browser to paint the piece at its real starting position.
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        if(!ghost.isConnected){finish();return}
+        if(typeof ghost.animate==="function"){
+          const animation=ghost.animate(
+            [
+              {transform:"translate3d(0px,0px,0)",offset:0},
+              {transform:"translate3d("+dx+"px,"+dy+"px,0)",offset:1}
+            ],
+            {duration:520,easing:"cubic-bezier(.18,.72,.22,1)",fill:"forwards"}
+          );
+          animation.onfinish=finish;
+          animation.oncancel=finish;
+        }else{
+          ghost.style.transition="transform 520ms cubic-bezier(.18,.72,.22,1)";
+          requestAnimationFrame(()=>{ghost.style.transform="translate3d("+dx+"px,"+dy+"px,0)"});
+          setTimeout(finish,560);
+        }
+      });
+    });
   }
   function tap(sq){
     if(thinking||game.turn()!=="w"||game.game_over())return;
