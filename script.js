@@ -33,7 +33,8 @@
       if(selected===sq)el.classList.add("selected");
       if(legal.includes(sq)){el.classList.add("legal");if(p)el.classList.add("capture");}
       if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
-      el.textContent=p?glyph[p.color+p.type]:"";
+      el.replaceChildren();
+      if(p){const pieceEl=document.createElement("span");pieceEl.className="piece-glyph "+(p.color==="w"?"piece-white":"piece-black");pieceEl.textContent=glyph[p.color+p.type];el.appendChild(pieceEl);}
       el.setAttribute("aria-label",sq+(p?", "+p.type:""));
     }
     const history=game.history();
@@ -65,7 +66,10 @@
     const ghost=document.createElement("div");
     const fromStyle=getComputedStyle(fromEl);
     ghost.className="moving-piece";
-    ghost.textContent=glyph[piece.color+piece.type];
+    const pieceEl=document.createElement("span");
+    pieceEl.className="piece-glyph "+(piece.color==="w"?"piece-white":"piece-black");
+    pieceEl.textContent=glyph[piece.color+piece.type];
+    ghost.appendChild(pieceEl);
     ghost.style.left=a.left+"px";
     ghost.style.top=a.top+"px";
     ghost.style.width=a.width+"px";
