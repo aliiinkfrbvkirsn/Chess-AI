@@ -11,23 +11,32 @@
   function save(){try{localStorage.setItem(key,JSON.stringify(memory))}catch(e){} updateStats()}
   function updateStats(){ $("games").textContent=memory.games; $("aiWins").textContent=memory.aiWins; $("playerWins").textContent=memory.playerWins; $("memory").textContent=Object.keys(memory.positions).length; }
   function render(){
-    const history=game.history();
-    let table='<table class="chess-table" aria-label="Шахматная доска"><tbody>';
-    for(let r=0;r<8;r++){
-      table+='<tr>';
-      for(let c=0;c<8;c++){
-        const sq="abcdefgh"[c]+(8-r), p=game.get(sq);
-        const classes=["square",((r+c)%2?"dark":"light")];
-        if(selected===sq)classes.push("selected");
-        if(legal.includes(sq)){classes.push("legal");if(p)classes.push("capture");}
-        if(lastMove&&(lastMove.from===sq||lastMove.to===sq))classes.push("last");
-        const piece=p?glyph[p.color+p.type]:"";
-        table+='<td><button type="button" class="'+classes.join(" ")+'" data-square="'+sq+'" aria-label="'+sq+(p?", "+p.type:"")+'">'+piece+'</button></td>';
+    let table=boardEl.querySelector(".chess-table");
+    if(!table){
+      let markup='<table class="chess-table" aria-label="Шахматная доска"><tbody>';
+      for(let r=0;r<8;r++){
+        markup+='<tr>';
+        for(let c=0;c<8;c++){
+          const sq="abcdefgh"[c]+(8-r);
+          markup+='<td><button type="button" class="square" data-square="'+sq+'" aria-label="'+sq+'"></button></td>';
+        }
+        markup+='</tr>';
       }
-      table+='</tr>';
+      markup+='</tbody></table>';
+      boardEl.innerHTML=markup;
+      table=boardEl.querySelector(".chess-table");
     }
-    table+='</tbody></table>';
-    boardEl.innerHTML=table;
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+      const sq="abcdefgh"[c]+(8-r), p=game.get(sq);
+      const el=table.rows[r].cells[c].firstElementChild;
+      el.className="square "+((r+c)%2?"dark":"light");
+      if(selected===sq)el.classList.add("selected");
+      if(legal.includes(sq)){el.classList.add("legal");if(p)el.classList.add("capture");}
+      if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
+      el.textContent=p?glyph[p.color+p.type]:"";
+      el.setAttribute("aria-label",sq+(p?", "+p.type:""));
+    }
+    const history=game.history();
     $("moves").innerHTML="";
     if(!history.length){const li=document.createElement("li");li.className="empty";li.textContent="Партия ещё не началась";$("moves").append(li)}
     history.forEach((m,i)=>{if(i%2===0){const li=document.createElement("li");li.textContent=(Math.floor(i/2)+1)+". "+m;$("moves").append(li)}else{$("moves").lastChild.textContent+="   "+m}});
