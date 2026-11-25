@@ -101,6 +101,12 @@
     else if(game.in_check()){$("status").textContent="Шах!";$("hint").textContent=game.turn()==="w"?"Тебе нужно защитить короля.":"ИИ должен ответить на шах."}
     else{$("status").textContent=game.turn()==="w"?"Твой ход":"ИИ думает";$("hint").textContent=game.turn()==="w"?"Выбери фигуру, затем клетку для хода.":"Подбираю лучший ход…"}
   }
+  function animateCastlingRook(move){
+    if(!move||!move.flags)return;
+    const rank=move.color==="w"?"1":"8";
+    if(move.flags.includes("k"))animateMove("h"+rank,"f"+rank,{color:move.color,type:"r"});
+    else if(move.flags.includes("q"))animateMove("a"+rank,"d"+rank,{color:move.color,type:"r"});
+  }
   function animateMove(from,to,piece){
     const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
     if(!fromEl||!piece)return;
