@@ -35,3 +35,11 @@
   display:inline-block!important;opacity:1!important;visibility:visible!important;
   line-height:1!important;margin:0!important;
 }
+
+/* Custom Staunton-style chess pieces, matching the reference image */
+.square .piece-glyph{width:88%;height:88%;display:block;overflow:visible;filter:drop-shadow(0 1px 1px #0005)}
+.piece-glyph path:not(.detail){stroke:#252525;stroke-width:3.2;stroke-linejoin:round;stroke-linecap:round}
+.piece-white path:not(.detail){fill:#fff}
+.piece-black path:not(.detail){fill:#55565a}
+.piece-glyph path.detail{fill:none;stroke:#252525;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.piece-flight-layer .piece-glyph{width:100%;height:100%}
