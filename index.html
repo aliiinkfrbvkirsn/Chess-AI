@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101820">
+  <title>Chess AI — шахматы с ИИ</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div><div class="eyebrow">CHESS LAB</div><h1>Chess <span>AI</span></h1><p>Твой соперник, который запоминает опыт</p></div>
+      <div class="avatar">♞</div>
+    </header>
+    <section class="panel controls">
+      <div class="control"><label for="level">Сложность ИИ</label><select id="level"><option value="1">Новичок</option><option value="2" selected>Любитель</option><option value="3">Сильный</option><option value="4">Эксперт</option></select></div>
+      <button id="newGame" class="primary">＋ Новая игра</button>
+      <button id="undo" class="secondary">↶ Отменить</button>
+    </section>
+    <section class="game">
+      <div class="board-wrap">
+        <div class="playerline"><span class="piece-icon">♚</span><div><b>Chess AI</b><small id="aiLabel">Искусственный интеллект</small></div><span class="turn" id="aiTurn">●</span></div>
+        <div id="board" class="board" aria-label="Шахматная доска"></div>
+        <div class="playerline bottomline"><span class="piece-icon">♔</span><div><b>Ты</b><small id="youLabel">Белые фигуры · твой ход</small></div><span class="turn active" id="youTurn">●</span></div>
+      </div>
+      <aside class="side">
+        <div class="panel status"><div class="eyebrow">ТЕКУЩАЯ ПАРТИЯ</div><h2 id="status">Твой ход</h2><p id="hint">Выбери фигуру, затем клетку для хода.</p></div>
+        <div class="panel"><div class="section-title">ХОДЫ</div><ol id="moves" class="moves"><li class="empty">Партия ещё не началась</li></ol></div>
+        <div class="panel stats"><div class="section-title">ПАМЯТЬ ИИ</div><div class="statrow"><span>Сыграно партий</span><b id="games">0</b></div><div class="statrow"><span>Победы ИИ</span><b id="aiWins">0</b></div><div class="statrow"><span>Победы игрока</span><b id="playerWins">0</b></div><div class="statrow"><span>Запомнено позиций</span><b id="memory">0</b></div><p class="note">ИИ сохраняет результаты и учитывает прошлые партии при выборе ходов на этом устройстве.</p></div>
+      </aside>
+    </section>
+    <footer>♟ Локальная игра · Прогресс хранится в браузере</footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
