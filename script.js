@@ -59,7 +59,7 @@
   function animateMove(from,to,piece){
     const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
     const toEl=boardEl.querySelector('[data-square="'+to+'"]');
-    if(!fromEl||!toEl||!piece||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    if(!fromEl||!toEl||!piece)return;
     const a=fromEl.getBoundingClientRect(),b=toEl.getBoundingClientRect();
     const ghost=document.createElement("div");
     ghost.className="moving-piece";
@@ -69,16 +69,23 @@
     document.body.appendChild(ghost);
     render();
     const target=boardEl.querySelector('[data-square="'+to+'"]');
-    if(target)target.style.color="transparent";
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      ghost.style.transform="translate("+(b.left-a.left)+"px,"+(b.top-a.top)+"px)";
-      ghost.addEventListener("transitionend",()=>{
+    if(target)target.style.visibility="hidden";
+    const dx=b.left-a.left,dy=b.top-a.top;
+    if(typeof ghost.animate==="function"){
+      const animation=ghost.animate(
+        [{transform:"translate3d(0,0,0)"},{transform:"translate3d("+dx+"px,"+dy+"px,0)"}],
+        {duration:420,easing:"cubic-bezier(.22,.7,.25,1)",fill:"forwards"}
+      );
+      animation.onfinish=()=>{
         ghost.remove();
         const cell=boardEl.querySelector('[data-square="'+to+'"]');
-        if(cell)cell.style.color="";
-      },{once:true});
-    }));
-    setTimeout(()=>{ghost.remove();const cell=boardEl.querySelector('[data-square="'+to+'"]');if(cell)cell.style.color="";},420);
+        if(cell)cell.style.visibility="";
+      };
+    }else{
+      ghost.style.transition="left 420ms cubic-bezier(.22,.7,.25,1),top 420ms cubic-bezier(.22,.7,.25,1)";
+      requestAnimationFrame(()=>{ghost.style.left=b.left+"px";ghost.style.top=b.top+"px"});
+      setTimeout(()=>{ghost.remove();const cell=boardEl.querySelector('[data-square="'+to+'"]');if(cell)cell.style.visibility=""},450);
+    }
   }
   function tap(sq){
     if(thinking||game.turn()!=="w"||game.game_over())return;
