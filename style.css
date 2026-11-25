@@ -50,3 +50,18 @@
 .piece-white{fill:#f7f7f2;stroke:#343338}
 .piece-black{fill:#625f66;stroke:#29282d}
 .piece-flight-layer .piece-glyph{width:100%;height:100%}
+
+/* Captured pieces and material balance, Chess.com-inspired */
+.player-meta{flex:0 0 auto;min-width:75px}
+.capture-info{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:hidden}
+.captured-pieces{display:flex;align-items:center;gap:0;min-width:0;overflow:hidden;flex-wrap:nowrap}
+.captured-pieces .piece-glyph{width:clamp(15px,4vw,23px);height:clamp(15px,4vw,23px);flex:0 0 auto;margin-left:-2px}
+.material-advantage{font-size:12px;font-weight:800;color:#a8e063;white-space:nowrap}
+.playerline{min-height:43px}
+@media(max-width:420px){
+ .player-meta{min-width:62px}
+ .player-meta b{font-size:12px}
+ .player-meta small{font-size:9px}
+ .captured-pieces .piece-glyph{width:17px;height:17px}
+ .material-advantage{font-size:11px}
+}
