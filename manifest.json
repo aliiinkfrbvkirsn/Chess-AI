@@ -10,7 +10,10 @@
   "orientation": "portrait-primary",
   "background_color": "#101820",
   "theme_color": "#101820",
-  "categories": ["games", "education"],
+  "categories": [
+    "games",
+    "education"
+  ],
   "icons": [
     {
       "src": "./icon.svg",
@@ -24,5 +27,6 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 }
