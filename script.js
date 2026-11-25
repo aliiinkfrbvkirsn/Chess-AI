@@ -28,7 +28,7 @@
   const values = {p:100,n:320,b:330,r:500,q:900,k:20000};
   const key = "chess_ai_memory_v1";
   let memory = loadMemory(), selected = null, legal = [], lastMove = null, thinking = false;
-  function loadMemory(){try{return JSON.parse(localStorage.getItem(key))||{games:0,aiWins:0,playerWins:0,draws:0,positions:{},preferred:{}}}catch(e){return {games:0,aiWins:0,playerWins:0,draws:0,positions:{},preferred:{}}}}
+  function loadMemory(){const empty={games:0,aiWins:0,playerWins:0,draws:0,positions:{},preferred:{},tactics:{checks:0,captures:0,castles:0,promotions:0}};try{const old=JSON.parse(localStorage.getItem(key))||{};return {...empty,...old,tactics:{...empty.tactics,...(old.tactics||{})}}}catch(e){return empty}}
   function save(){try{localStorage.setItem(key,JSON.stringify(memory))}catch(e){} updateStats()}
   function updateStats(){ $("games").textContent=memory.games; $("aiWins").textContent=memory.aiWins; $("playerWins").textContent=memory.playerWins; $("memory").textContent=Object.keys(memory.positions).length; }
   const captureValues={p:1,n:3,b:3,r:5,q:9};
@@ -164,13 +164,13 @@
     const p=game.get(sq);
     if(selected&&legal.includes(sq)){
       const move=game.move({from:selected,to:sq,promotion:"q"});
-      if(move){lastMove=move;selected=null;legal=[];animateMove(move.from,move.to,move.piece);animateCastlingRook(move);afterPlayerMove();return}
+      if(move){lastMove=move;selected=null;legal=[];animateMove(move.from,move.to,move.piece);animateCastlingRook(move);afterPlayerMove(move);return}
     }
     if(p&&p.color==="w"){selected=sq;legal=game.moves({square:sq, verbose:true}).map(m=>m.to)}
     else{selected=null;legal=[]}
     render();
   }
-  function afterPlayerMove(){recordPosition();render();if(finishIfOver())return;thinking=true;setTimeout(aiMove,180)}
+  function afterPlayerMove(move){learnFromPlayer(move);recordPosition();render();if(finishIfOver())return;thinking=true;setTimeout(aiMove,180)}
   function finishIfOver(){
     if(!game.game_over())return false;
     memory.games++;
@@ -178,7 +178,10 @@
     save();render();return true;
   }
   function recordPosition(){const fen=game.fen().split(" ").slice(0,4).join(" ");memory.positions[fen]=(memory.positions[fen]||0)+1}
+  function learnFromPlayer(move){if(!move)return;const t=memory.tactics||(memory.tactics={checks:0,captures:0,castles:0,promotions:0});if(move.captured)t.captures++;if(game.in_check())t.checks++;if(move.flags&&(move.flags.includes("k")||move.flags.includes("q")))t.castles++;if(move.promotion)t.promotions++;save()}
   function evaluate(){
+    if(game.in_checkmate())return game.turn()==="w"?100000:-100000;
+    if(game.in_draw())return 0;
     let score=0;
     for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=game.board()[r][c];if(!p)continue;let v=values[p.type];if(p.type==="p")v+=(p.color==="w"?6-r:r-1)*5;if(p.type==="n"||p.type==="b")v+=(3.5-Math.abs(3.5-c)+3.5-Math.abs(3.5-r))*5;score+=(p.color==="b"?v:-v)}
     return score;
@@ -199,7 +202,11 @@
       const learned=memory.positions[fen]||0;
       score+=Math.random()*([45,20,8,2][level-1]);
       score-=Math.min(learned,5)*([2,4,8,12][level-1]);
-      const pref=memory.preferred[m.from+m.to]||0;score+=pref*([1,2,3,5][level-1]);
+      const habits=memory.tactics||{checks:0,captures:0,castles:0,promotions:0};
+      if(game.in_check())score+=Math.min(habits.checks,20)*([0.3,0.5,0.8,1][level-1]);
+      if(m.captured)score+=Math.min(habits.captures,20)*([0.2,0.4,0.7,1][level-1]);
+      if(m.flags&&(m.flags.includes("k")||m.flags.includes("q")))score+=Math.min(habits.castles,10)*([0.2,0.3,0.5,0.7][level-1]);
+      const pref=memory.preferred[m.from+m.to]||0;score+=pref*([0.2,0.4,0.6,1][level-1]);
       if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
     }
     const chosen=choices[Math.floor(Math.random()*choices.length)];
