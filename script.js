@@ -56,12 +56,36 @@
     else if(game.in_check()){$("status").textContent="Шах!";$("hint").textContent=game.turn()==="w"?"Тебе нужно защитить короля.":"ИИ должен ответить на шах."}
     else{$("status").textContent=game.turn()==="w"?"Твой ход":"ИИ думает";$("hint").textContent=game.turn()==="w"?"Выбери фигуру, затем клетку для хода.":"Подбираю лучший ход…"}
   }
+  function animateMove(from,to,piece){
+    const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
+    const toEl=boardEl.querySelector('[data-square="'+to+'"]');
+    if(!fromEl||!toEl||!piece||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    const a=fromEl.getBoundingClientRect(),b=toEl.getBoundingClientRect();
+    const ghost=document.createElement("div");
+    ghost.className="moving-piece";
+    ghost.textContent=glyph[piece.color+piece.type];
+    ghost.style.left=a.left+"px";ghost.style.top=a.top+"px";
+    ghost.style.width=a.width+"px";ghost.style.height=a.height+"px";
+    document.body.appendChild(ghost);
+    render();
+    const target=boardEl.querySelector('[data-square="'+to+'"]');
+    if(target)target.style.color="transparent";
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      ghost.style.transform="translate("+(b.left-a.left)+"px,"+(b.top-a.top)+"px)";
+      ghost.addEventListener("transitionend",()=>{
+        ghost.remove();
+        const cell=boardEl.querySelector('[data-square="'+to+'"]');
+        if(cell)cell.style.color="";
+      },{once:true});
+    }));
+    setTimeout(()=>{ghost.remove();const cell=boardEl.querySelector('[data-square="'+to+'"]');if(cell)cell.style.color="";},420);
+  }
   function tap(sq){
     if(thinking||game.turn()!=="w"||game.game_over())return;
     const p=game.get(sq);
     if(selected&&legal.includes(sq)){
       const move=game.move({from:selected,to:sq,promotion:"q"});
-      if(move){lastMove=move;selected=null;legal=[];afterPlayerMove();return}
+      if(move){lastMove=move;selected=null;legal=[];animateMove(move.from,move.to,move.piece);afterPlayerMove();return}
     }
     if(p&&p.color==="w"){selected=sq;legal=game.moves({square:sq, verbose:true}).map(m=>m.to)}
     else{selected=null;legal=[]}
@@ -100,7 +124,7 @@
       if(score>best){best=score;choices=[m]}else if(score===best)choices.push(m);
     }
     const chosen=choices[Math.floor(Math.random()*choices.length)];
-    if(chosen){game.move({from:chosen.from,to:chosen.to,promotion:"q"});lastMove=chosen;memory.preferred[chosen.from+chosen.to]=(memory.preferred[chosen.from+chosen.to]||0)+1}
+    if(chosen){game.move({from:chosen.from,to:chosen.to,promotion:"q"});lastMove=chosen;animateMove(chosen.from,chosen.to,chosen);memory.preferred[chosen.from+chosen.to]=(memory.preferred[chosen.from+chosen.to]||0)+1}
     thinking=false;recordPosition();render();finishIfOver();
   }
   $("newGame").addEventListener("click",()=>{if(game.history().length&&!game.game_over()){memory.games++;memory.draws++;save()}game.reset();selected=null;legal=[];lastMove=null;thinking=false;render()});
