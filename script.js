@@ -58,55 +58,53 @@
     else{$("status").textContent=game.turn()==="w"?"Твой ход":"ИИ думает";$("hint").textContent=game.turn()==="w"?"Выбери фигуру, затем клетку для хода.":"Подбираю лучший ход…"}
   }
   function animateMove(from,to,piece){
-    // Capture the actual rendered piece before the board is updated.
     const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
-    const toEl=boardEl.querySelector('[data-square="'+to+'"]');
-    if(!fromEl||!toEl||!piece)return;
+    if(!fromEl||!piece)return;
     const original=fromEl.querySelector(".piece-glyph");
     if(!original)return;
     const startRect=original.getBoundingClientRect();
-    const ghost=original.cloneNode(true);
-    ghost.classList.add("piece-flight");
-    ghost.style.position="fixed";
-    ghost.style.left=startRect.left+"px";
-    ghost.style.top=startRect.top+"px";
-    ghost.style.width=startRect.width+"px";
-    ghost.style.height=startRect.height+"px";
-    ghost.style.margin="0";
-    ghost.style.zIndex="10000";
-    ghost.style.display="grid";
-    ghost.style.placeItems="center";
-    ghost.style.fontSize=getComputedStyle(original).fontSize;
-    ghost.style.pointerEvents="none";
-    ghost.style.transform="translate3d(0,0,0)";
-    document.body.appendChild(ghost);
 
-    // render() runs immediately after this function; animate only after its paint.
+    // A separate fixed overlay keeps the moving piece visible while render()
+    // updates the board underneath it.
+    const flight=document.createElement("div");
+    flight.className="piece-flight-layer";
+    flight.style.left=startRect.left+"px";
+    flight.style.top=startRect.top+"px";
+    flight.style.width=startRect.width+"px";
+    flight.style.height=startRect.height+"px";
+    const glyphEl=original.cloneNode(true);
+    glyphEl.classList.remove("piece-flight");
+    flight.appendChild(glyphEl);
+    document.body.appendChild(flight);
+
     requestAnimationFrame(()=>{
+      const destination=boardEl.querySelector('[data-square="'+to+'"]');
+      if(!destination||!flight.isConnected){flight.remove();return}
+      const targetRect=destination.getBoundingClientRect();
+      const targetPiece=destination.querySelector(".piece-glyph");
+      const dx=(targetRect.left+targetRect.width/2)-(startRect.left+startRect.width/2);
+      const dy=(targetRect.top+targetRect.height/2)-(startRect.top+startRect.height/2);
+
+      if(targetPiece)targetPiece.style.opacity="0";
+      const cleanup=()=>{
+        flight.remove();
+        const current=boardEl.querySelector('[data-square="'+to+'"] .piece-glyph');
+        if(current){current.style.opacity="";current.style.visibility=""}
+      };
+
+      // Start on the next paint so the browser has committed the start position.
       requestAnimationFrame(()=>{
-        const destination=boardEl.querySelector('[data-square="'+to+'"]');
-        const targetPiece=destination&&destination.querySelector(".piece-glyph");
-        if(!destination||!ghost.isConnected){ghost.remove();return}
-        const targetRect=destination.getBoundingClientRect();
-        if(targetPiece)targetPiece.style.visibility="hidden";
-        const dx=targetRect.left+targetRect.width/2-(startRect.left+startRect.width/2);
-        const dy=targetRect.top+targetRect.height/2-(startRect.top+startRect.height/2);
-        const finish=()=>{
-          ghost.remove();
-          const current=boardEl.querySelector('[data-square="'+to+'"] .piece-glyph');
-          if(current)current.style.visibility="";
-        };
-        if(typeof ghost.animate==="function"){
-          const animation=ghost.animate(
-            [{transform:"translate3d(0,0,0) scale(1)"},{transform:"translate3d("+dx+"px,"+dy+"px,0) scale(1)"}],
-            {duration:420,easing:"cubic-bezier(.2,.75,.25,1)",fill:"forwards"}
+        if(typeof flight.animate==="function"){
+          const anim=flight.animate(
+            [{transform:"translate3d(0,0,0)"},{transform:"translate3d("+dx+"px,"+dy+"px,0)"}],
+            {duration:650,easing:"cubic-bezier(.22,.61,.36,1)",fill:"forwards"}
           );
-          animation.onfinish=finish;
-          animation.oncancel=finish;
+          anim.onfinish=cleanup;
+          anim.oncancel=cleanup;
         }else{
-          ghost.style.transition="transform 420ms cubic-bezier(.2,.75,.25,1)";
-          requestAnimationFrame(()=>{ghost.style.transform="translate3d("+dx+"px,"+dy+"px,0)"});
-          setTimeout(finish,450);
+          flight.style.transition="transform 650ms cubic-bezier(.22,.61,.36,1)";
+          requestAnimationFrame(()=>{flight.style.transform="translate3d("+dx+"px,"+dy+"px,0)"});
+          setTimeout(cleanup,700);
         }
       });
     });
