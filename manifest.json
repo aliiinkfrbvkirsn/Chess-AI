@@ -1,0 +1,28 @@
+{
+  "id": "./",
+  "name": "Chess AI — шахматы с ИИ",
+  "short_name": "Chess AI",
+  "description": "Шахматы против искусственного интеллекта, который запоминает опыт партий.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "categories": ["games", "education"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
