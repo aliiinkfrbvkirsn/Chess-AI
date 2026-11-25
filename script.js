@@ -14,7 +14,7 @@
     boardEl.innerHTML="";
     for(let r=0;r<8;r++)for(let c=0;c<8;c++){
       const sq="abcdefgh"[c]+(8-r), p=game.get(sq), el=document.createElement("button");
-      el.type="button"; el.className="square "+((r+c)%2?"dark":"light");
+      el.type="button"; el.className="square "+((r+c)%2?"dark":"light"); el.style.left=(c*12.5)+"%"; el.style.top=(r*12.5)+"%";
       if(selected===sq)el.classList.add("selected");
       if(legal.includes(sq))el.classList.add("legal",p?"capture":"");
       if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
