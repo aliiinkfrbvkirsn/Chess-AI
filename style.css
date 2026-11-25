@@ -22,5 +22,16 @@
 .square.last{background-image:linear-gradient(#f6f66955,#f6f66955)}
 @media(max-width:760px){.app{padding:12px 0 18px}.top,.controls,.game{margin-left:12px;margin-right:12px}.game{gap:12px}.board{width:100%;border-radius:0}.board-wrap{width:100%}.playerline{padding-left:4px;padding-right:4px}.square{font-size:clamp(34px,10.5vw,58px)}}
 
-/* Smooth flight overlay for chess moves */
-.piece-flight{position:fixed!important;pointer-events:none!important;z-index:10000!important;will-change:transform;line-height:1!important}
+
+/* Stable overlay: the moving piece stays visible above the board */
+.piece-flight-layer{
+  position:fixed!important;z-index:10001!important;
+  display:grid!important;place-items:center!important;
+  margin:0!important;padding:0!important;border:0!important;
+  background:transparent!important;pointer-events:none!important;
+  will-change:transform;transform:translate3d(0,0,0);
+}
+.piece-flight-layer .piece-glyph{
+  display:inline-block!important;opacity:1!important;visibility:visible!important;
+  line-height:1!important;margin:0!important;
+}
