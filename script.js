@@ -31,6 +31,28 @@
   function loadMemory(){try{return JSON.parse(localStorage.getItem(key))||{games:0,aiWins:0,playerWins:0,draws:0,positions:{},preferred:{}}}catch(e){return {games:0,aiWins:0,playerWins:0,draws:0,positions:{},preferred:{}}}}
   function save(){try{localStorage.setItem(key,JSON.stringify(memory))}catch(e){} updateStats()}
   function updateStats(){ $("games").textContent=memory.games; $("aiWins").textContent=memory.aiWins; $("playerWins").textContent=memory.playerWins; $("memory").textContent=Object.keys(memory.positions).length; }
+  const captureValues={p:1,n:3,b:3,r:5,q:9};
+  function updateCapturedPieces(){
+    const whiteCaptured=[],blackCaptured=[];
+    let whitePoints=0,blackPoints=0;
+    game.history({verbose:true}).forEach(move=>{
+      if(!move.captured)return;
+      const captured={type:move.captured,color:move.color==="w"?"b":"w"};
+      const points=captureValues[move.captured]||0;
+      if(move.color==="w"){whiteCaptured.push(captured);whitePoints+=points}
+      else{blackCaptured.push(captured);blackPoints+=points}
+    });
+    const drawTray=(id,pieces)=>{
+      const el=$(id);if(!el)return;
+      el.innerHTML=pieces.map(piece=>pieceMarkup(piece)).join("");
+      el.setAttribute("aria-label",pieces.length?"Съедено фигур: "+pieces.length:"Пока ничего не съедено");
+    };
+    drawTray("youCaptured",whiteCaptured);
+    drawTray("aiCaptured",blackCaptured);
+    const advantage=whitePoints-blackPoints;
+    $("youAdvantage").textContent=advantage>0?"+"+advantage:"";
+    $("aiAdvantage").textContent=advantage<0?"+"+Math.abs(advantage):"";
+  }
   function render(){
     let table=boardEl.querySelector(".chess-table");
     if(!table){
@@ -63,6 +85,7 @@
     if(!history.length){const li=document.createElement("li");li.className="empty";li.textContent="Партия ещё не началась";$("moves").append(li)}
     history.forEach((m,i)=>{if(i%2===0){const li=document.createElement("li");li.textContent=(Math.floor(i/2)+1)+". "+m;$("moves").append(li)}else{$("moves").lastChild.textContent+="   "+m}});
     $("moves").scrollTop=$("moves").scrollHeight;
+    updateCapturedPieces();
     updateStatus();
   }
   boardEl.addEventListener("click",event=>{
