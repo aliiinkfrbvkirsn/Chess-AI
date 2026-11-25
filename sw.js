@@ -1,11 +1,13 @@
-const CACHE_NAME = "chess-ai-v23";
+const CACHE_NAME = "chess-ai-v24";
 const APP_FILES = [
   "./",
   "./index.html",
   "./style.css?v=23",
   "./script.js?v=23",
   "./manifest.json",
-  "./icon.svg"
+  "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", event => {
