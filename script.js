@@ -16,7 +16,7 @@
       const sq="abcdefgh"[c]+(8-r), p=game.get(sq), el=document.createElement("button");
       el.type="button"; el.className="square "+((r+c)%2?"dark":"light"); el.style.position="relative"; el.style.gridColumn=String(c+1); el.style.gridRow=String(r+1); el.style.width="100%"; el.style.height="100%";
       if(selected===sq)el.classList.add("selected");
-      if(legal.includes(sq))el.classList.add("legal",p?"capture":"");
+      if(legal.includes(sq)){el.classList.add("legal");if(p)el.classList.add("capture");}
       if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
       el.textContent=p?glyph[p.color+p.type]:""; el.setAttribute("aria-label",sq+(p?", "+p.type:""));
       el.addEventListener("click",()=>tap(sq)); boardEl.appendChild(el);
