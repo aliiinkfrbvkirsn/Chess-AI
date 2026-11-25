@@ -3,7 +3,7 @@
   if (typeof Chess === "undefined") { $("status").textContent = "Нет подключения"; $("hint").textContent = "Для работы правил шахмат нужен интернет: библиотека chess.js загружается с CDN."; return; }
   const game = new Chess();
   const boardEl = $("board");
-  const glyph = {wp:"♟",wn:"♞",wb:"♝",wr:"♜",wq:"♛",wk:"♚",bp:"♟",bn:"♞",bb:"♝",br:"♜",bq:"♛",bk:"♚"};
+  const glyph = {wp:"♙",wn:"♘",wb:"♗",wr:"♖",wq:"♕",wk:"♔",bp:"♟",bn:"♞",bb:"♝",br:"♜",bq:"♛",bk:"♚"};
   const values = {p:100,n:320,b:330,r:500,q:900,k:20000};
   const key = "chess_ai_memory_v1";
   let memory = loadMemory(), selected = null, legal = [], lastMove = null, thinking = false;
