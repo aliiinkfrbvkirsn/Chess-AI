@@ -11,10 +11,10 @@
   function save(){try{localStorage.setItem(key,JSON.stringify(memory))}catch(e){} updateStats()}
   function updateStats(){ $("games").textContent=memory.games; $("aiWins").textContent=memory.aiWins; $("playerWins").textContent=memory.playerWins; $("memory").textContent=Object.keys(memory.positions).length; }
   function render(){
-    boardEl.innerHTML="";
+    boardEl.innerHTML=""; boardEl.style.display="grid"; boardEl.style.gridTemplateColumns="repeat(8,minmax(0,1fr))"; boardEl.style.gridTemplateRows="repeat(8,minmax(0,1fr))"; boardEl.style.position="relative";
     for(let r=0;r<8;r++)for(let c=0;c<8;c++){
       const sq="abcdefgh"[c]+(8-r), p=game.get(sq), el=document.createElement("button");
-      el.type="button"; el.className="square "+((r+c)%2?"dark":"light"); el.style.left=(c*12.5)+"%"; el.style.top=(r*12.5)+"%";
+      el.type="button"; el.className="square "+((r+c)%2?"dark":"light"); el.style.position="relative"; el.style.gridColumn=String(c+1); el.style.gridRow=String(r+1); el.style.width="100%"; el.style.height="100%";
       if(selected===sq)el.classList.add("selected");
       if(legal.includes(sq))el.classList.add("legal",p?"capture":"");
       if(lastMove&&(lastMove.from===sq||lastMove.to===sq))el.classList.add("last");
