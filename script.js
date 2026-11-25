@@ -194,16 +194,19 @@
   }
   function aiMove(){
     if(game.game_over()){thinking=false;finishIfOver();return}
-    const level=Number($("level").value), depth=[1,2,2,3][level-1];
+    const level=Number($("level").value), depth=[1,2,3,4][level-1];
     const moves=game.moves({verbose:true});let best=-Infinity,choices=[];
+    const positionKey=game.fen().split(" ").slice(0,4).join(" ");
+    const learned=memory.positions[positionKey]||0;
+    const habits=memory.tactics||{checks:0,captures:0,castles:0,promotions:0};
     for(const m of moves){
-      game.move(m);let score=minimax(depth-1,-Infinity,Infinity,false);game.undo();
-      const fen=game.fen().split(" ").slice(0,4).join(" ");
-      const learned=memory.positions[fen]||0;
+      game.move(m);
+      const givesCheck=game.in_check();
+      let score=minimax(depth-1,-Infinity,Infinity,false);
+      game.undo();
       score+=Math.random()*([45,20,8,2][level-1]);
       score-=Math.min(learned,5)*([2,4,8,12][level-1]);
-      const habits=memory.tactics||{checks:0,captures:0,castles:0,promotions:0};
-      if(game.in_check())score+=Math.min(habits.checks,20)*([0.3,0.5,0.8,1][level-1]);
+      if(givesCheck)score+=Math.min(habits.checks,20)*([0.3,0.5,0.8,1][level-1]);
       if(m.captured)score+=Math.min(habits.captures,20)*([0.2,0.4,0.7,1][level-1]);
       if(m.flags&&(m.flags.includes("k")||m.flags.includes("q")))score+=Math.min(habits.castles,10)*([0.2,0.3,0.5,0.7][level-1]);
       const pref=memory.preferred[m.from+m.to]||0;score+=pref*([0.2,0.4,0.6,1][level-1]);
