@@ -58,58 +58,55 @@
     else{$("status").textContent=game.turn()==="w"?"Твой ход":"ИИ думает";$("hint").textContent=game.turn()==="w"?"Выбери фигуру, затем клетку для хода.":"Подбираю лучший ход…"}
   }
   function animateMove(from,to,piece){
+    // Capture the actual rendered piece before the board is updated.
     const fromEl=boardEl.querySelector('[data-square="'+from+'"]');
     const toEl=boardEl.querySelector('[data-square="'+to+'"]');
     if(!fromEl||!toEl||!piece)return;
-    const a=fromEl.getBoundingClientRect();
-    const b=toEl.getBoundingClientRect();
-    const ghost=document.createElement("div");
-    const fromStyle=getComputedStyle(fromEl);
-    ghost.className="moving-piece";
-    const pieceEl=document.createElement("span");
-    pieceEl.className="piece-glyph "+(piece.color==="w"?"piece-white":"piece-black");
-    pieceEl.textContent=glyph[piece.color+piece.type];
-    ghost.appendChild(pieceEl);
-    ghost.style.left=a.left+"px";
-    ghost.style.top=a.top+"px";
-    ghost.style.width=a.width+"px";
-    ghost.style.height=a.height+"px";
-    ghost.style.fontSize=fromStyle.fontSize;
-    ghost.style.color=fromStyle.color;
+    const original=fromEl.querySelector(".piece-glyph");
+    if(!original)return;
+    const startRect=original.getBoundingClientRect();
+    const ghost=original.cloneNode(true);
+    ghost.classList.add("piece-flight");
+    ghost.style.position="fixed";
+    ghost.style.left=startRect.left+"px";
+    ghost.style.top=startRect.top+"px";
+    ghost.style.width=startRect.width+"px";
+    ghost.style.height=startRect.height+"px";
+    ghost.style.margin="0";
+    ghost.style.zIndex="10000";
+    ghost.style.display="grid";
+    ghost.style.placeItems="center";
+    ghost.style.fontSize=getComputedStyle(original).fontSize;
+    ghost.style.pointerEvents="none";
     ghost.style.transform="translate3d(0,0,0)";
     document.body.appendChild(ghost);
 
-    // Hide the destination piece while the moving copy travels over the board.
-    toEl.style.visibility="hidden";
-    const dx=b.left-a.left;
-    const dy=b.top-a.top;
-    let finished=false;
-    const finish=()=>{
-      if(finished)return;
-      finished=true;
-      ghost.remove();
-      const destination=boardEl.querySelector('[data-square="'+to+'"]');
-      if(destination)destination.style.visibility="";
-    };
-
-    // Wait for the browser to paint the piece at its real starting position.
+    // render() runs immediately after this function; animate only after its paint.
     requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
-        if(!ghost.isConnected){finish();return}
+        const destination=boardEl.querySelector('[data-square="'+to+'"]');
+        const targetPiece=destination&&destination.querySelector(".piece-glyph");
+        if(!destination||!ghost.isConnected){ghost.remove();return}
+        const targetRect=destination.getBoundingClientRect();
+        if(targetPiece)targetPiece.style.visibility="hidden";
+        const dx=targetRect.left+targetRect.width/2-(startRect.left+startRect.width/2);
+        const dy=targetRect.top+targetRect.height/2-(startRect.top+startRect.height/2);
+        const finish=()=>{
+          ghost.remove();
+          const current=boardEl.querySelector('[data-square="'+to+'"] .piece-glyph');
+          if(current)current.style.visibility="";
+        };
         if(typeof ghost.animate==="function"){
           const animation=ghost.animate(
-            [
-              {transform:"translate3d(0px,0px,0)",offset:0},
-              {transform:"translate3d("+dx+"px,"+dy+"px,0)",offset:1}
-            ],
-            {duration:520,easing:"cubic-bezier(.18,.72,.22,1)",fill:"forwards"}
+            [{transform:"translate3d(0,0,0) scale(1)"},{transform:"translate3d("+dx+"px,"+dy+"px,0) scale(1)"}],
+            {duration:420,easing:"cubic-bezier(.2,.75,.25,1)",fill:"forwards"}
           );
           animation.onfinish=finish;
           animation.oncancel=finish;
         }else{
-          ghost.style.transition="transform 520ms cubic-bezier(.18,.72,.22,1)";
+          ghost.style.transition="transform 420ms cubic-bezier(.2,.75,.25,1)";
           requestAnimationFrame(()=>{ghost.style.transform="translate3d("+dx+"px,"+dy+"px,0)"});
-          setTimeout(finish,560);
+          setTimeout(finish,450);
         }
       });
     });
