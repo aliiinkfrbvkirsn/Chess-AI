@@ -43,3 +43,10 @@
 .piece-black path:not(.detail){fill:#55565a}
 .piece-glyph path.detail{fill:none;stroke:#252525;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .piece-flight-layer .piece-glyph{width:100%;height:100%}
+
+/* SVG contours sampled from the supplied Chess.com piece reference */
+.square .piece-glyph{width:88%;height:88%;display:block;overflow:visible}
+.piece-glyph path{fill:inherit!important;stroke:inherit!important;stroke-width:inherit!important}
+.piece-white{fill:#f7f7f2;stroke:#343338}
+.piece-black{fill:#625f66;stroke:#29282d}
+.piece-flight-layer .piece-glyph{width:100%;height:100%}
