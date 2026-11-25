@@ -21,9 +21,9 @@
     </section>
     <section class="game">
       <div class="board-wrap">
-        <div class="playerline"><span class="piece-icon">♚</span><div><b>Chess AI</b><small id="aiLabel">Искусственный интеллект</small></div><span class="turn" id="aiTurn">●</span></div>
+        <div class="playerline"><span class="piece-icon">♚</span><div class="player-meta"><b>Chess AI</b><small id="aiLabel">Искусственный интеллект</small></div><div class="capture-info"><div id="aiCaptured" class="captured-pieces" aria-label="Фигуры, съеденные ИИ"></div><b id="aiAdvantage" class="material-advantage"></b></div><span class="turn" id="aiTurn">●</span></div>
         <div id="board" class="board" aria-label="Шахматная доска"></div>
-        <div class="playerline bottomline"><span class="piece-icon">♔</span><div><b>Ты</b><small id="youLabel">Белые фигуры · твой ход</small></div><span class="turn active" id="youTurn">●</span></div>
+        <div class="playerline bottomline"><span class="piece-icon">♔</span><div class="player-meta"><b>Ты</b><small id="youLabel">Белые фигуры · твой ход</small></div><div class="capture-info"><div id="youCaptured" class="captured-pieces" aria-label="Фигуры, съеденные тобой"></div><b id="youAdvantage" class="material-advantage"></b></div><span class="turn active" id="youTurn">●</span></div>
       </div>
       <aside class="side">
         <div class="panel status"><div class="eyebrow">ТЕКУЩАЯ ПАРТИЯ</div><h2 id="status">Твой ход</h2><p id="hint">Выбери фигуру, затем клетку для хода.</p></div>
